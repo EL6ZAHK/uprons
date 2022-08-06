@@ -1,0 +1,90 @@
+{
+  "project_info": {
+    "project_number": "892510091108",
+    "project_id": "atrons-5eef1",
+    "storage_bucket": "atrons-5eef1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:892510091108:android:4a0bde60b0100f38606c71",
+        "android_client_info": {
+          "package_name": "com.example.uprons"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "892510091108-albga0v01a20k8hvsibpga6mtghm422s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8dTh59kbtESobfxwuyL9DwM8cWmUA70Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "892510091108-albga0v01a20k8hvsibpga6mtghm422s.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "892510091108-5nfeua21fui103103il58oifpobpr8ar.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.atronsV1"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:892510091108:android:199be434e0b67d20606c71",
+        "android_client_info": {
+          "package_name": "io.Atrons.atrons_v1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "892510091108-dj3o001sfpugbvi1kuvjm61s5iapnd3b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.Atrons.atrons_v1",
+            "certificate_hash": "8de1eee3d4220a534537885710f2b80e429d4905"
+          }
+        },
+        {
+          "client_id": "892510091108-albga0v01a20k8hvsibpga6mtghm422s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD8dTh59kbtESobfxwuyL9DwM8cWmUA70Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "892510091108-albga0v01a20k8hvsibpga6mtghm422s.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "892510091108-5nfeua21fui103103il58oifpobpr8ar.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.atronsV1"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
