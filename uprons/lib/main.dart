@@ -1,39 +1,45 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:faker/faker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-Future<void> main() async {
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:faker/faker.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'helloo',
+      title: 'upload',
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
       ),
-      home: MyHomePage(),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key}) : super(key: key);
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
+
+  final String title;
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  int _counter = 0;
   String imageName = "";
   XFile? imagePath;
   final ImagePicker _picker = ImagePicker();
@@ -46,50 +52,53 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: _isloading
-            ? Center(child: CircularProgressIndicator())
-            : Column(
-                children: [
-                  imageName == " " ? Container() : Text("${imageName}"),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  OutlinedButton(
-                      onPressed: () {
-                        imagePicker();
-                      },
-                      child: Text("Select Image")),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  TextFormField(
-                    controller: descriptionController,
-                    minLines: 3,
-                    maxLines: 5,
-                    decoration: InputDecoration(
-                        labelText: 'Description', border: OutlineInputBorder()),
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  ElevatedButton(
-                      onPressed: () {
-                        _uploadImage();
-                      },
-                      child: Text("upload"))
-                ],
-              ),
+      body: SafeArea(
+        child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: _isloading
+                ? Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : Column(
+                    children: [
+                      imageName == "" ? Container() : Text("${imageName}"),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      OutlinedButton(
+                          onPressed: () {
+                            imagePicker();
+                          },
+                          child: Text("Select Image")),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      TextFormField(
+                          controller: descriptionController,
+                          minLines: 3,
+                          maxLines: 5,
+                          decoration: InputDecoration(
+                              labelText: 'Description',
+                              border: OutlineInputBorder())),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      ElevatedButton(
+                          onPressed: () {
+                            _uploadImage();
+                          },
+                          child: const Text("Upload"))
+                    ],
+                  )),
       ),
-    ));
+    );
   }
 
   _uploadImage() async {
     setState(() {
       _isloading = true;
     });
+
     var uniqueKey = firestoreRef.collection(collectionName).doc();
     String uploadFileName =
         DateTime.now().millisecondsSinceEpoch.toString() + '.jpg';
