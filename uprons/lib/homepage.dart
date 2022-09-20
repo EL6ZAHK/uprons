@@ -31,6 +31,7 @@ class _HomePageState extends State<HomePage> {
 
   FirebaseFirestore firestoreRef = FirebaseFirestore.instance;
   String collectionName = 'Books'; // create new collection called 'Books'
+  String collectionImageName = 'Image'; // create new collection called 'Books'
   FirebaseStorage storageRef = FirebaseStorage.instance;
 
   final formKey = GlobalKey<FormState>();
@@ -123,6 +124,7 @@ class _HomePageState extends State<HomePage> {
         hintText: 'Short description of the book',
         border: OutlineInputBorder(),
       ),
+      onChanged: (value) => setState(() => description = value),
       validator: (value) {
         return value!.length < 10 ? 'book description should be > 10' : null;
       },
@@ -211,11 +213,13 @@ class _HomePageState extends State<HomePage> {
           if (formIsValid) {
             setState(() => _isLoading = true);
 
-            var uniqueKey = firestoreRef.collection(collectionName).doc();
+            var uniqueKey = firestoreRef.collection(collectionImageName).doc();
             String uploadFileName =
                 DateTime.now().millisecondsSinceEpoch.toString() + '.jpg';
-            Reference reference =
-                storageRef.ref().child(collectionName).child(uploadFileName);
+            Reference reference = storageRef
+                .ref()
+                .child(collectionImageName)
+                .child(uploadFileName);
             UploadTask uploadTask = reference.putFile(File(imagePath!.path));
             uploadTask.snapshotEvents.listen((event) {
               print(event.bytesTransferred.toString() +
@@ -228,8 +232,15 @@ class _HomePageState extends State<HomePage> {
 
               if (uploadPath.isNotEmpty) {
                 firestoreRef.collection(collectionName).doc(uniqueKey.id).set({
-                  "description": description,
-                  "image": uploadPath
+                  "Image": uploadPath,
+                  "Title": title,
+                  "Author": author,
+                  "Description": description,
+                  "Price": price,
+                  "Pages": pagesStr,
+                  "Language": language,
+                  "PubYear": pubYear,
+                  "Tags": tags
                 }).then((value) => _showMessage("Record Inserted."));
               } else {
                 _showMessage("Something while Uploading image");
