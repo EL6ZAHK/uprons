@@ -46,46 +46,64 @@ class _HomePageState extends State<HomePage> {
           ? const Center(child: CircularProgressIndicator())
           : Form(
               key: formKey,
-              child: ListView(padding: const EdgeInsets.all(15), children: [
-                buildImageUrl(),
-                const SizedBox(height: 5),
-                _showImageName(),
-                const SizedBox(height: 20),
-                buildTitle(),
-                const SizedBox(height: 20),
-                buildAuthor(),
-                const SizedBox(height: 20),
-                buildDescription(),
-                const SizedBox(height: 20),
-                buildPrice(),
-                const SizedBox(height: 20),
-                buildPages(),
-                const SizedBox(height: 20),
-                buildLanguage(),
-                const SizedBox(height: 20),
-                buildPubYear(),
-                const SizedBox(height: 20),
-                buildTags(),
-                const SizedBox(height: 20),
-                buildSubmit(),
-              ]),
+              child: ListView(
+                padding: const EdgeInsets.all(15),
+                children: [
+                  buildImageUrl(),
+                  const SizedBox(height: 5),
+                  _showImageName(),
+                  const SizedBox(height: 20),
+                  buildTitle(),
+                  const SizedBox(height: 20),
+                  buildAuthor(),
+                  const SizedBox(height: 20),
+                  buildDescription(),
+                  const SizedBox(height: 20),
+                  buildPrice(),
+                  const SizedBox(height: 20),
+                  buildPages(),
+                  const SizedBox(height: 20),
+                  buildLanguage(),
+                  const SizedBox(height: 20),
+                  buildPubYear(),
+                  const SizedBox(height: 20),
+                  buildTags(),
+                  const SizedBox(height: 20),
+                  buildSubmit(),
+                ],
+              ),
             ),
     );
   }
 
   buildImageUrl() {
-    return OutlinedButton(
-      onPressed: () async {
-        final XFile? image =
-            await _picker.pickImage(source: ImageSource.gallery);
-        if (image != null) {
-          setState(() {
-            imagePath = image;
-            imageName = image.name.toString();
-          });
-        }
-      },
-      child: const Text('Select Image'),
+    return Column(
+      children: [
+        Container(
+          width: 200,
+          height: 200,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(),
+          ),
+          child: imagePath == null
+              ? const Center(child: Text('No image selected'))
+              : Image.file(File(imagePath!.path)),
+        ),
+        OutlinedButton(
+          onPressed: () async {
+            final XFile? image =
+                await _picker.pickImage(source: ImageSource.gallery);
+            if (image != null) {
+              setState(() {
+                imagePath = image;
+                imageName = image.name.toString();
+              });
+            }
+          },
+          child: const Text('Select Image'),
+        ),
+      ],
     );
   }
 
@@ -119,7 +137,7 @@ class _HomePageState extends State<HomePage> {
       textInputAction: TextInputAction.newline,
       keyboardType: TextInputType.multiline,
       maxLines: null,
-      minLines: 2,
+      minLines: 3,
       decoration: const InputDecoration(
         hintText: 'Short description of the book',
         border: OutlineInputBorder(),

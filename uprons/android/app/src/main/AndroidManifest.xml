@@ -1,7 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.uprons">
+    <uses-permission android:name="android.permission.INTERNET"/>
    <application
-        android:label="uprons"
+        android:label="UpAtrons"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
