@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_document_picker/flutter_document_picker.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:image_picker/image_picker.dart';
 
 class HomePage extends StatefulWidget {
@@ -12,18 +14,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String title = '';
-  String author = '';
-  String description = '';
-  String price =
-      ''; // when uploading price if price is 0 or empty the value will be 'Free'
-  String pagesStr = ''; // you can convert from string to int
-  String language = 'English';
-  String pubYear = ''; // dd/mm/yyyy
-  List<String> tags = []; // keywords for the book eg. its genre, ...
+  late TextEditingController title;
+  late TextEditingController author;
+  late TextEditingController description;
+  late TextEditingController price;
+  late TextEditingController pages;
+  late TextEditingController pubYear;
+  late TextEditingController tags;
+
+  // List<String> tagss = []; // keywords for the book eg. its genre, ...
   List<String> languages = ['English', 'Amharic', 'Tigrigna', 'Afaan Oromoo'];
+  String language = 'English';
 
   XFile? imagePath;
+  String? pdfPath;
+  File? pdfFile;
   final ImagePicker _picker = ImagePicker();
   String imageName = '';
 
@@ -31,10 +36,35 @@ class _HomePageState extends State<HomePage> {
 
   FirebaseFirestore firestoreRef = FirebaseFirestore.instance;
   String collectionName = 'Books'; // create new collection called 'Books'
-  String collectionImageName = 'Image'; // create new collection called 'Books'
+  String collectionImageName = 'Image';
+  String collectionPdfName = 'PDF';
   FirebaseStorage storageRef = FirebaseStorage.instance;
 
   final formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    title = TextEditingController();
+    author = TextEditingController();
+    description = TextEditingController();
+    price = TextEditingController();
+    pages = TextEditingController();
+    pubYear = TextEditingController();
+    tags = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    title.dispose();
+    author.dispose();
+    description.dispose();
+    price.dispose();
+    pages.dispose();
+    pubYear.dispose();
+    tags.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +79,10 @@ class _HomePageState extends State<HomePage> {
               child: ListView(
                 padding: const EdgeInsets.all(15),
                 children: [
+                  buildPdfUrl(),
+                  const SizedBox(height: 5),
+                  _showPdfName(),
+                  const SizedBox(height: 20),
                   buildImageUrl(),
                   const SizedBox(height: 5),
                   _showImageName(),
@@ -73,6 +107,17 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
             ),
+    );
+  }
+
+  buildPdfUrl() {
+    return OutlinedButton(
+      onPressed: () async {
+        pdfPath = await FlutterDocumentPicker.openDocument();
+        pdfFile = File(pdfPath!);
+        setState(() {});
+      },
+      child: Text(pdfPath == null ? 'Select PDF' : 'PDF Chosen'),
     );
   }
 
@@ -109,11 +154,11 @@ class _HomePageState extends State<HomePage> {
 
   buildTitle() {
     return TextFormField(
+      controller: title,
       decoration: const InputDecoration(
         labelText: 'Title',
         border: OutlineInputBorder(),
       ),
-      onChanged: (value) => setState(() => title = value),
       validator: (value) {
         return value!.isEmpty ? 'book title required' : null;
       },
@@ -122,11 +167,11 @@ class _HomePageState extends State<HomePage> {
 
   buildAuthor() {
     return TextFormField(
+        controller: author,
         decoration: const InputDecoration(
           labelText: 'Author',
           border: OutlineInputBorder(),
         ),
-        onChanged: (value) => setState(() => author = value),
         validator: (value) {
           return value!.length < 4 ? 'author name should be > 4' : null;
         });
@@ -134,6 +179,7 @@ class _HomePageState extends State<HomePage> {
 
   buildDescription() {
     return TextFormField(
+      controller: description,
       textInputAction: TextInputAction.newline,
       keyboardType: TextInputType.multiline,
       maxLines: null,
@@ -142,7 +188,6 @@ class _HomePageState extends State<HomePage> {
         hintText: 'Short description of the book',
         border: OutlineInputBorder(),
       ),
-      onChanged: (value) => setState(() => description = value),
       validator: (value) {
         return value!.length < 10 ? 'book description should be > 10' : null;
       },
@@ -151,25 +196,23 @@ class _HomePageState extends State<HomePage> {
 
   buildPrice() {
     return TextFormField(
-      initialValue: price,
+      controller: price,
       decoration: const InputDecoration(
         labelText: 'Price',
         border: OutlineInputBorder(),
       ),
       keyboardType: const TextInputType.numberWithOptions(),
-      onChanged: (value) =>
-          setState(() => value == '0' ? price = 'Free' : price = value),
     );
   }
 
   buildPages() {
     return TextFormField(
+      controller: pages,
       decoration: const InputDecoration(
         labelText: 'Pages',
         border: OutlineInputBorder(),
       ),
       keyboardType: TextInputType.number,
-      onChanged: (value) => setState(() => pagesStr = value),
     );
   }
 
@@ -200,25 +243,23 @@ class _HomePageState extends State<HomePage> {
 
   buildPubYear() {
     return TextFormField(
+      controller: pubYear,
       decoration: const InputDecoration(
         labelText: 'Publication Year',
         border: OutlineInputBorder(),
       ),
       keyboardType: TextInputType.datetime,
-      onChanged: (value) => setState(() => pubYear = value),
     );
   }
 
   buildTags() {
     return TextFormField(
+      controller: tags,
       decoration: const InputDecoration(
         labelText: 'Tags',
-        hintText: 'Keywords with space',
+        hintText: 'Keywords*splitted*by*\'*\'',
         border: OutlineInputBorder(),
       ),
-      onChanged: (value) {
-        tags = value.split(' ');
-      },
     );
   }
 
@@ -232,42 +273,47 @@ class _HomePageState extends State<HomePage> {
             setState(() => _isLoading = true);
 
             var uniqueKey = firestoreRef.collection(collectionImageName).doc();
-            String uploadFileName =
-                DateTime.now().millisecondsSinceEpoch.toString() + '.jpg';
+            String forFileName =
+                DateTime.now().millisecondsSinceEpoch.toString();
+            String uploadFileName = forFileName + '.jpg';
             Reference reference = storageRef
                 .ref()
                 .child(collectionImageName)
                 .child(uploadFileName);
             UploadTask uploadTask = reference.putFile(File(imagePath!.path));
-            uploadTask.snapshotEvents.listen((event) {
-              print(event.bytesTransferred.toString() +
-                  "\t" +
-                  event.totalBytes.toString());
-            });
 
-            await uploadTask.whenComplete(() async {
+            String uploadPdfFileName = forFileName + '.pdf';
+            reference = storageRef
+                .ref()
+                .child(collectionPdfName)
+                .child(uploadPdfFileName);
+            UploadTask task = reference.putFile(pdfFile!);
+
+            await task.whenComplete(() async {
               var uploadPath = await uploadTask.snapshot.ref.getDownloadURL();
+              var pdfPath = await task.snapshot.ref.getDownloadURL();
 
-              if (uploadPath.isNotEmpty) {
+              if (uploadPath.isNotEmpty && pdfPath.isNotEmpty) {
                 firestoreRef.collection(collectionName).doc(uniqueKey.id).set({
+                  "PDF": pdfPath,
                   "Image": uploadPath,
-                  "Title": title,
-                  "Author": author,
-                  "Description": description,
-                  "Price": price,
-                  "Pages": pagesStr,
+                  "Title": title.text,
+                  "Author": author.text,
+                  "Description": description.text,
+                  "Price": price.text,
+                  "Pages": pages.text,
                   "Language": language,
-                  "PubYear": pubYear,
-                  "Tags": tags
+                  "PubYear": pubYear.text,
+                  "Tags": tags.text.split('*'),
                 }).then((value) => _showMessage("Record Inserted."));
               } else {
                 _showMessage("Something while Uploading image");
               }
               setState(() {
                 _isLoading = false;
-                description = '';
+                description.text = '';
                 imageName = '';
-                price = '';
+                price.text = '';
               });
             });
           }
@@ -279,6 +325,24 @@ class _HomePageState extends State<HomePage> {
       content: Text(msg),
       duration: const Duration(seconds: 3),
     ));
+  }
+
+  _showPdfName() {
+    return pdfPath == '' || pdfPath == null
+        ? Container()
+        : Column(
+            children: [
+              const Text('Selected PDF File 👇'),
+              const SizedBox(height: 3),
+              Text(
+                pdfPath!,
+                style: const TextStyle(
+                  color: Colors.teal,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          );
   }
 
   _showImageName() {

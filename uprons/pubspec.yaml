@@ -39,7 +39,7 @@ dependencies:
   cloud_firestore: ^3.1.13
   firebase_auth: ^3.3.15
   image_picker: ^0.8.5+3
-  faker: ^2.0.0
+  flutter_document_picker: ^5.1.0
 
 dev_dependencies:
   flutter_test:
