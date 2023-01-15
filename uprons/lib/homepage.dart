@@ -295,6 +295,7 @@ class _HomePageState extends State<HomePage> {
 
               if (uploadPath.isNotEmpty && pdfPath.isNotEmpty) {
                 firestoreRef.collection(collectionName).doc(uniqueKey.id).set({
+                  "BookId": uniqueKey.id,
                   "PDF": pdfPath,
                   "Image": uploadPath,
                   "Title": title.text,
