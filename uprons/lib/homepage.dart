@@ -27,8 +27,8 @@ class _HomePageState extends State<HomePage> {
   String language = 'English';
 
   XFile? imagePath;
-  String? pdfPath;
-  File? pdfFile;
+  String? epubPath;
+  File? epubFile;
   final ImagePicker _picker = ImagePicker();
   String imageName = '';
 
@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
   FirebaseFirestore firestoreRef = FirebaseFirestore.instance;
   String collectionName = 'Books'; // create new collection called 'Books'
   String collectionImageName = 'Image';
-  String collectionPdfName = 'PDF';
+  String collectionEpubName = 'EPub';
   FirebaseStorage storageRef = FirebaseStorage.instance;
 
   final formKey = GlobalKey<FormState>();
@@ -79,7 +79,7 @@ class _HomePageState extends State<HomePage> {
               child: ListView(
                 padding: const EdgeInsets.all(15),
                 children: [
-                  buildPdfUrl(),
+                  buildEpubUrl(),
                   const SizedBox(height: 5),
                   _showPdfName(),
                   const SizedBox(height: 20),
@@ -110,14 +110,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  buildPdfUrl() {
+  buildEpubUrl() {
     return OutlinedButton(
       onPressed: () async {
-        pdfPath = await FlutterDocumentPicker.openDocument();
-        pdfFile = File(pdfPath!);
+        epubPath = await FlutterDocumentPicker.openDocument();
+        epubFile = File(epubPath!);
         setState(() {});
       },
-      child: Text(pdfPath == null ? 'Select PDF' : 'PDF Chosen'),
+      child: Text(epubPath == null ? 'Select EPub' : 'EPub Chosen'),
     );
   }
 
@@ -146,7 +146,7 @@ class _HomePageState extends State<HomePage> {
               });
             }
           },
-          child: const Text('Select Image'),
+          child: Text(imageName == '' ? 'Select Image' : 'Image Selected'),
         ),
       ],
     );
@@ -282,21 +282,21 @@ class _HomePageState extends State<HomePage> {
                 .child(uploadFileName);
             UploadTask uploadTask = reference.putFile(File(imagePath!.path));
 
-            String uploadPdfFileName = forFileName + '.pdf';
+            String uploadEpubFileName = forFileName + '.epub';
             reference = storageRef
                 .ref()
-                .child(collectionPdfName)
-                .child(uploadPdfFileName);
-            UploadTask task = reference.putFile(pdfFile!);
+                .child(collectionEpubName)
+                .child(uploadEpubFileName);
+            UploadTask task = reference.putFile(epubFile!);
 
             await task.whenComplete(() async {
               var uploadPath = await uploadTask.snapshot.ref.getDownloadURL();
-              var pdfPath = await task.snapshot.ref.getDownloadURL();
+              var epubPath = await task.snapshot.ref.getDownloadURL();
 
-              if (uploadPath.isNotEmpty && pdfPath.isNotEmpty) {
+              if (uploadPath.isNotEmpty && epubPath.isNotEmpty) {
                 firestoreRef.collection(collectionName).doc(uniqueKey.id).set({
                   "BookId": uniqueKey.id,
-                  "PDF": pdfPath,
+                  "EPub": epubPath,
                   "Image": uploadPath,
                   "Title": title.text,
                   "Author": author.text,
@@ -312,9 +312,15 @@ class _HomePageState extends State<HomePage> {
               }
               setState(() {
                 _isLoading = false;
+                epubPath = '';
+                title.text = '';
+                author.text = '';
                 description.text = '';
                 imageName = '';
                 price.text = '';
+                pages.text = '';
+                pubYear.text = '';
+                tags.text = '';
               });
             });
           }
@@ -329,14 +335,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   _showPdfName() {
-    return pdfPath == '' || pdfPath == null
+    return epubPath == '' || epubPath == null
         ? Container()
         : Column(
             children: [
-              const Text('Selected PDF File 👇'),
+              const Text('Selected EPub File 👇'),
               const SizedBox(height: 3),
               Text(
-                pdfPath!,
+                epubPath!,
                 style: const TextStyle(
                   color: Colors.teal,
                   fontWeight: FontWeight.w500,
