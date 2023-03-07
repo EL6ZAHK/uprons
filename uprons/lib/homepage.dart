@@ -23,8 +23,9 @@ class _HomePageState extends State<HomePage> {
   late TextEditingController tags;
 
   // List<String> tagss = []; // keywords for the book eg. its genre, ...
-  List<String> languages = ['English', 'Amharic', 'Tigrigna', 'Afaan Oromoo'];
+  List<String> languages = ['English', 'Amharic', 'Tigrinya', 'Afaan Oromoo'];
   String language = 'English';
+  String tagSplitChar = '*';
 
   XFile? imagePath;
   String? epubPath;
@@ -117,7 +118,7 @@ class _HomePageState extends State<HomePage> {
         epubFile = File(epubPath!);
         setState(() {});
       },
-      child: Text(epubPath == null ? 'Select EPub' : 'EPub Chosen'),
+      child: Text(epubPath == null || epubPath == '' ? 'Select EPub' : 'EPub Chosen'),
     );
   }
 
@@ -213,6 +214,9 @@ class _HomePageState extends State<HomePage> {
         border: OutlineInputBorder(),
       ),
       keyboardType: TextInputType.number,
+      validator: (value) {
+        return value!.length < 1 ? 'number of pages required' : null;
+      },
     );
   }
 
@@ -249,17 +253,23 @@ class _HomePageState extends State<HomePage> {
         border: OutlineInputBorder(),
       ),
       keyboardType: TextInputType.datetime,
+      validator: (value) {
+        return value!.length < 1 ? 'publication year required' : null;
+      },
     );
   }
 
   buildTags() {
     return TextFormField(
       controller: tags,
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
         labelText: 'Tags',
-        hintText: 'Keywords*splitted*by*\'*\'',
+        hintText: 'Keywords${tagSplitChar}splitted${tagSplitChar}by${tagSplitChar}"${tagSplitChar}"',
         border: OutlineInputBorder(),
       ),
+      validator: (value) {
+        return value!.length < 1 ? 'tags required' : null;
+      },
     );
   }
 
@@ -295,6 +305,7 @@ class _HomePageState extends State<HomePage> {
 
               if (uploadPath.isNotEmpty && epubPath.isNotEmpty) {
                 firestoreRef.collection(collectionName).doc(uniqueKey.id).set({
+                  "BookId": uniqueKey.id,
                   "EPub": epubPath,
                   "Image": uploadPath,
                   "Title": title.text,
@@ -304,7 +315,7 @@ class _HomePageState extends State<HomePage> {
                   "Pages": pages.text,
                   "Language": language,
                   "PubYear": pubYear.text,
-                  "Tags": tags.text.split('*'),
+                  "Tags": tags.text.split(tagSplitChar),
                 }).then((value) => _showMessage("Record Inserted."));
               } else {
                 _showMessage("Something while Uploading image");
@@ -312,10 +323,10 @@ class _HomePageState extends State<HomePage> {
               setState(() {
                 _isLoading = false;
                 epubPath = '';
+                imageName = '';
                 title.text = '';
                 author.text = '';
                 description.text = '';
-                imageName = '';
                 price.text = '';
                 pages.text = '';
                 pubYear.text = '';
