@@ -22,7 +22,6 @@ class _HomePageState extends State<HomePage> {
   late TextEditingController pubYear;
   late TextEditingController tags;
 
-  // List<String> tagss = []; // keywords for the book eg. its genre, ...
   List<String> languages = ['English', 'Amharic', 'Tigrinya', 'Afaan Oromoo'];
   String language = 'English';
   String tagSplitChar = '*';
@@ -118,7 +117,7 @@ class _HomePageState extends State<HomePage> {
         epubFile = File(epubPath!);
         setState(() {});
       },
-      child: Text(epubPath == null || epubPath == '' ? 'Select EPub' : 'EPub Chosen'),
+      child: Text(epubPath == null || epubPath == '' ? 'Select EPub' : 'EPub Selected'),
     );
   }
 
@@ -200,6 +199,7 @@ class _HomePageState extends State<HomePage> {
       controller: price,
       decoration: const InputDecoration(
         labelText: 'Price',
+        hintText: 'Skip if Free',
         border: OutlineInputBorder(),
       ),
       keyboardType: const TextInputType.numberWithOptions(),
@@ -313,6 +313,8 @@ class _HomePageState extends State<HomePage> {
                   "Description": description.text,
                   "Price": price.text,
                   "Pages": pages.text,
+                  "Purchases": 0,
+                  "RatingsReviews": [],
                   "Language": language,
                   "PubYear": pubYear.text,
                   "Tags": tags.text.split(tagSplitChar),
