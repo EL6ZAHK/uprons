@@ -117,7 +117,8 @@ class _HomePageState extends State<HomePage> {
         epubFile = File(epubPath!);
         setState(() {});
       },
-      child: Text(epubPath == null || epubPath == '' ? 'Select EPub' : 'EPub Selected'),
+      child: Text(
+          epubPath == null || epubPath == '' ? 'Select EPub' : 'EPub Selected'),
     );
   }
 
@@ -264,7 +265,8 @@ class _HomePageState extends State<HomePage> {
       controller: tags,
       decoration: InputDecoration(
         labelText: 'Tags',
-        hintText: 'Keywords${tagSplitChar}splitted${tagSplitChar}by${tagSplitChar}"${tagSplitChar}"',
+        hintText:
+            'Keywords${tagSplitChar}splitted${tagSplitChar}by${tagSplitChar}"${tagSplitChar}"',
         border: OutlineInputBorder(),
       ),
       validator: (value) {
