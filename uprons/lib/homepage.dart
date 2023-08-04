@@ -315,7 +315,7 @@ class _HomePageState extends State<HomePage> {
                 .ref()
                 .child(collectionAudioName)
                 .child(uploadAudioFileName);
-            UploadTask audiotask = reference.putFile(audioFile!);
+            UploadTask audiotask = reference.putFile(audioFile!.path as File);
 
             String uploadEpubFileName = forFileName + '.epub';
             reference = storageRef
@@ -329,12 +329,27 @@ class _HomePageState extends State<HomePage> {
               var epubPath = await task.snapshot.ref.getDownloadURL();
               var audioPath = await audiotask.snapshot.ref.getDownloadURL();
 
-              if (uploadPath.isNotEmpty &&
-                  epubPath.isNotEmpty &&
-                  audioPath.isNotEmpty) {
+              if (uploadPath.isNotEmpty && epubPath.isNotEmpty) {
                 firestoreRef.collection(collectionName).doc(uniqueKey.id).set({
                   "BookId": uniqueKey.id,
                   "EPub": epubPath,
+                  "Audio": audioPath,
+                  "Image": uploadPath,
+                  "Title": title.text,
+                  "Author": author.text,
+                  "Description": description.text,
+                  "Price": price.text,
+                  "Pages": pages.text,
+                  "Purchases": 0,
+                  "RatingsReviews": [],
+                  "Language": language,
+                  "PubYear": pubYear.text,
+                  "Tags": tags.text.split(tagSplitChar),
+                }).then((value) => _showMessage("Record Inserted."));
+              } else if (uploadPath.isNotEmpty && audioPath.isNotEmpty) {
+                firestoreRef.collection(collectionName).doc(uniqueKey.id).set({
+                  "BookId": uniqueKey.id,
+                  // "EPub": epubPath,
                   "Audio": audioPath,
                   "Image": uploadPath,
                   "Title": title.text,
