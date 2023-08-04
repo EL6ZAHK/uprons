@@ -27,8 +27,8 @@ class _HomePageState extends State<HomePage> {
   String tagSplitChar = '*';
 
   XFile? imagePath;
-  String? epubPath;
-  File? epubFile;
+  String? epubPath, audioPath;
+  File? epubFile, audioFile;
   final ImagePicker _picker = ImagePicker();
   String imageName = '';
 
@@ -38,6 +38,7 @@ class _HomePageState extends State<HomePage> {
   String collectionName = 'Books'; // create new collection called 'Books'
   String collectionImageName = 'Image';
   String collectionEpubName = 'EPub';
+  String collectionAudioName = 'Audio';
   FirebaseStorage storageRef = FirebaseStorage.instance;
 
   final formKey = GlobalKey<FormState>();
@@ -83,6 +84,8 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 5),
                   _showPdfName(),
                   const SizedBox(height: 20),
+                  buildAudioUrl(),
+                  const SizedBox(height: 5),
                   buildImageUrl(),
                   const SizedBox(height: 5),
                   _showImageName(),
@@ -119,6 +122,19 @@ class _HomePageState extends State<HomePage> {
       },
       child: Text(
           epubPath == null || epubPath == '' ? 'Select EPub' : 'EPub Selected'),
+    );
+  }
+
+  buildAudioUrl() {
+    return OutlinedButton(
+      onPressed: () async {
+        audioPath = await FlutterDocumentPicker.openDocument();
+        audioFile = File(audioPath!);
+        setState(() {});
+      },
+      child: Text(audioPath == null || audioPath == ''
+          ? 'Select Audio'
+          : 'Audio Selected'),
     );
   }
 
@@ -294,6 +310,13 @@ class _HomePageState extends State<HomePage> {
                 .child(uploadFileName);
             UploadTask uploadTask = reference.putFile(File(imagePath!.path));
 
+            String uploadAudioFileName = forFileName + '.mp3';
+            reference = storageRef
+                .ref()
+                .child(collectionAudioName)
+                .child(uploadAudioFileName);
+            UploadTask audiotask = reference.putFile(audioFile!);
+
             String uploadEpubFileName = forFileName + '.epub';
             reference = storageRef
                 .ref()
@@ -304,11 +327,15 @@ class _HomePageState extends State<HomePage> {
             await task.whenComplete(() async {
               var uploadPath = await uploadTask.snapshot.ref.getDownloadURL();
               var epubPath = await task.snapshot.ref.getDownloadURL();
+              var audioPath = await audiotask.snapshot.ref.getDownloadURL();
 
-              if (uploadPath.isNotEmpty && epubPath.isNotEmpty) {
+              if (uploadPath.isNotEmpty &&
+                  epubPath.isNotEmpty &&
+                  audioPath.isNotEmpty) {
                 firestoreRef.collection(collectionName).doc(uniqueKey.id).set({
                   "BookId": uniqueKey.id,
                   "EPub": epubPath,
+                  "Audio": audioPath,
                   "Image": uploadPath,
                   "Title": title.text,
                   "Author": author.text,
