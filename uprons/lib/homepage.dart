@@ -27,8 +27,8 @@ class _HomePageState extends State<HomePage> {
   String tagSplitChar = '*';
 
   XFile? imagePath;
-  String? epubPath;
-  File? epubFile;
+  String? epubPath, audioPath;
+  File? epubFile, audioFile;
   final ImagePicker _picker = ImagePicker();
   String imageName = '';
 
@@ -38,6 +38,7 @@ class _HomePageState extends State<HomePage> {
   String collectionName = 'Books';
   String collectionImageName = 'Image';
   String collectionEpubName = 'EPub';
+  String collectionAudioName = 'Audio';
   FirebaseStorage storageRef = FirebaseStorage.instance;
 
   final formKey = GlobalKey<FormState>();
@@ -83,6 +84,8 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 5),
                   _showPdfName(),
                   const SizedBox(height: 20),
+                  buildAudioUrl(),
+                  const SizedBox(height: 5),
                   buildImageUrl(),
                   const SizedBox(height: 5),
                   _showImageName(),
@@ -117,7 +120,21 @@ class _HomePageState extends State<HomePage> {
         epubFile = File(epubPath!);
         setState(() {});
       },
-      child: Text(epubPath == null || epubPath == '' ? 'Select EPub' : 'EPub Selected'),
+      child: Text(
+          epubPath == null || epubPath == '' ? 'Select EPub' : 'EPub Selected'),
+    );
+  }
+
+  buildAudioUrl() {
+    return OutlinedButton(
+      onPressed: () async {
+        audioPath = await FlutterDocumentPicker.openDocument();
+        audioFile = File(audioPath!);
+        setState(() {});
+      },
+      child: Text(audioPath == null || audioPath == ''
+          ? 'Select Audio'
+          : 'Audio Selected'),
     );
   }
 
@@ -264,7 +281,8 @@ class _HomePageState extends State<HomePage> {
       controller: tags,
       decoration: InputDecoration(
         labelText: 'Tags',
-        hintText: 'Keywords${tagSplitChar}splitted${tagSplitChar}by${tagSplitChar}"${tagSplitChar}"',
+        hintText:
+            'Keywords${tagSplitChar}splitted${tagSplitChar}by${tagSplitChar}"${tagSplitChar}"',
         border: OutlineInputBorder(),
       ),
       validator: (value) {
@@ -292,6 +310,13 @@ class _HomePageState extends State<HomePage> {
                 .child(uploadFileName);
             TaskSnapshot uploadTask = await reference.putFile(File(imagePath!.path));
 
+            String uploadAudioFileName = forFileName + '.mp3';
+            reference = storageRef
+                .ref()
+                .child(collectionAudioName)
+                .child(uploadAudioFileName);
+            UploadTask audiotask = reference.putFile(audioFile!.path as File);
+
             String uploadEpubFileName = forFileName + '.epub';
             reference = storageRef
                 .ref()
@@ -302,11 +327,30 @@ class _HomePageState extends State<HomePage> {
             await task.whenComplete(() async {
               var uploadPath = await uploadTask.ref.getDownloadURL();
               var epubPath = await task.snapshot.ref.getDownloadURL();
+              var audioPath = await audiotask.snapshot.ref.getDownloadURL();
 
               if (uploadPath.isNotEmpty && epubPath.isNotEmpty) {
                 firestoreRef.collection(collectionName).doc(uniqueKey.id).set({
                   "BookId": uniqueKey.id,
                   "EPub": epubPath,
+                  "Audio": audioPath,
+                  "Image": uploadPath,
+                  "Title": title.text,
+                  "Author": author.text,
+                  "Description": description.text,
+                  "Price": price.text,
+                  "Pages": pages.text,
+                  "Purchases": 0,
+                  "RatingsReviews": [],
+                  "Language": language,
+                  "PubYear": pubYear.text,
+                  "Tags": tags.text.split(tagSplitChar),
+                }).then((value) => _showMessage("Record Inserted."));
+              } else if (uploadPath.isNotEmpty && audioPath.isNotEmpty) {
+                firestoreRef.collection(collectionName).doc(uniqueKey.id).set({
+                  "BookId": uniqueKey.id,
+                  // "EPub": epubPath,
+                  "Audio": audioPath,
                   "Image": uploadPath,
                   "Title": title.text,
                   "Author": author.text,
