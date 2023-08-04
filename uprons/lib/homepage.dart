@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> {
   bool _isLoading = false;
 
   FirebaseFirestore firestoreRef = FirebaseFirestore.instance;
-  String collectionName = 'Books'; // create new collection called 'Books'
+  String collectionName = 'Books';
   String collectionImageName = 'Image';
   String collectionEpubName = 'EPub';
   FirebaseStorage storageRef = FirebaseStorage.instance;
@@ -290,7 +290,7 @@ class _HomePageState extends State<HomePage> {
                 .ref()
                 .child(collectionImageName)
                 .child(uploadFileName);
-            UploadTask uploadTask = reference.putFile(File(imagePath!.path));
+            TaskSnapshot uploadTask = await reference.putFile(File(imagePath!.path));
 
             String uploadEpubFileName = forFileName + '.epub';
             reference = storageRef
@@ -300,7 +300,7 @@ class _HomePageState extends State<HomePage> {
             UploadTask task = reference.putFile(epubFile!);
 
             await task.whenComplete(() async {
-              var uploadPath = await uploadTask.snapshot.ref.getDownloadURL();
+              var uploadPath = await uploadTask.ref.getDownloadURL();
               var epubPath = await task.snapshot.ref.getDownloadURL();
 
               if (uploadPath.isNotEmpty && epubPath.isNotEmpty) {
@@ -314,7 +314,7 @@ class _HomePageState extends State<HomePage> {
                   "Price": price.text,
                   "Pages": pages.text,
                   "Purchases": 0,
-                  "RatingsReviews": [],
+                  "RatingsReviews": FieldValue.arrayUnion([]),
                   "Language": language,
                   "PubYear": pubYear.text,
                   "Tags": tags.text.split(tagSplitChar),
