@@ -4,7 +4,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_document_picker/flutter_document_picker.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:image_picker/image_picker.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -82,9 +81,11 @@ class _HomePageState extends State<HomePage> {
                 children: [
                   buildEpubUrl(),
                   const SizedBox(height: 5),
-                  _showPdfName(),
+                  _showEpubName(),
                   const SizedBox(height: 20),
                   buildAudioUrl(),
+                  const SizedBox(height: 5),
+                  _showAudioName(),
                   const SizedBox(height: 5),
                   buildImageUrl(),
                   const SizedBox(height: 5),
@@ -301,22 +302,28 @@ class _HomePageState extends State<HomePage> {
             setState(() => _isLoading = true);
 
             var uniqueKey = firestoreRef.collection(collectionImageName).doc();
+
+            
             String forFileName =
                 DateTime.now().millisecondsSinceEpoch.toString();
+
+            // upload book cover image
             String uploadFileName = forFileName + '.jpg';
             Reference reference = storageRef
                 .ref()
                 .child(collectionImageName)
                 .child(uploadFileName);
-            TaskSnapshot uploadTask = await reference.putFile(File(imagePath!.path));
+            UploadTask uploadTask = reference.putFile(File(imagePath!.path));
 
+            // upload audiobook
             String uploadAudioFileName = forFileName + '.mp3';
             reference = storageRef
                 .ref()
                 .child(collectionAudioName)
                 .child(uploadAudioFileName);
-            UploadTask audiotask = reference.putFile(audioFile!.path as File);
+            UploadTask audiotask = reference.putFile(audioFile!);
 
+            // upload ebook
             String uploadEpubFileName = forFileName + '.epub';
             reference = storageRef
                 .ref()
@@ -324,51 +331,40 @@ class _HomePageState extends State<HomePage> {
                 .child(uploadEpubFileName);
             UploadTask task = reference.putFile(epubFile!);
 
-            await task.whenComplete(() async {
-              var uploadPath = await uploadTask.ref.getDownloadURL();
-              var epubPath = await task.snapshot.ref.getDownloadURL();
-              var audioPath = await audiotask.snapshot.ref.getDownloadURL();
+            await uploadTask.whenComplete(() => _showMessage('Image uploaded'));
+            await task.whenComplete(() => _showMessage('Epub uploaded'));
 
-              if (uploadPath.isNotEmpty && epubPath.isNotEmpty) {
+            await audiotask.whenComplete(() async {
+              var uploadPath = await uploadTask.snapshot.ref.getDownloadURL();
+              var epubPathUrl = await task.snapshot.ref.getDownloadURL();
+              var audioPathUrl = await audiotask.snapshot.ref.getDownloadURL();
+
+              if (uploadPath.isNotEmpty && epubPathUrl.isNotEmpty) {
                 firestoreRef.collection(collectionName).doc(uniqueKey.id).set({
-                  "BookId": uniqueKey.id,
-                  "EPub": epubPath,
-                  "Audio": audioPath,
-                  "Image": uploadPath,
-                  "Title": title.text,
-                  "Author": author.text,
-                  "Description": description.text,
-                  "Price": price.text,
-                  "Pages": pages.text,
-                  "Purchases": 0,
-                  "RatingsReviews": [],
-                  "Language": language,
-                  "PubYear": pubYear.text,
-                  "Tags": tags.text.split(tagSplitChar),
-                }).then((value) => _showMessage("Record Inserted."));
-              } else if (uploadPath.isNotEmpty && audioPath.isNotEmpty) {
-                firestoreRef.collection(collectionName).doc(uniqueKey.id).set({
-                  "BookId": uniqueKey.id,
-                  // "EPub": epubPath,
-                  "Audio": audioPath,
-                  "Image": uploadPath,
-                  "Title": title.text,
-                  "Author": author.text,
-                  "Description": description.text,
-                  "Price": price.text,
-                  "Pages": pages.text,
-                  "Purchases": 0,
-                  "RatingsReviews": FieldValue.arrayUnion([]),
-                  "Language": language,
-                  "PubYear": pubYear.text,
-                  "Tags": tags.text.split(tagSplitChar),
-                }).then((value) => _showMessage("Record Inserted."));
+                  'BookId': uniqueKey.id,
+                  'EPub': epubPathUrl,
+                  'Audio': audioPathUrl,
+                  'Image': uploadPath,
+                  'Title': title.text,
+                  'Author': author.text,
+                  'Description': description.text,
+                  'Price': price.text,
+                  'Pages': pages.text,
+                  'Purchases': 0,
+                  'RatingsReviews': [],
+                  'Language': language,
+                  'PubYear': pubYear.text,
+                  'Tags': tags.text.split(tagSplitChar),
+                }).then((value) => _showMessage('Record Inserted.'));
               } else {
-                _showMessage("Something while Uploading image");
+                _showMessage('Something while Uploading image');
               }
               setState(() {
                 _isLoading = false;
-                epubPath = '';
+                epubPath = null;
+                imagePath = null;
+                imageName = '';
+                audioPath = '';
                 imageName = '';
                 title.text = '';
                 author.text = '';
@@ -386,11 +382,11 @@ class _HomePageState extends State<HomePage> {
   _showMessage(String msg) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(msg),
-      duration: const Duration(seconds: 3),
+      duration: const Duration(seconds: 2),
     ));
   }
 
-  _showPdfName() {
+  _showEpubName() {
     return epubPath == '' || epubPath == null
         ? Container()
         : Column(
@@ -399,6 +395,24 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 3),
               Text(
                 epubPath!,
+                style: const TextStyle(
+                  color: Colors.teal,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          );
+  }
+
+  _showAudioName() {
+    return audioPath == '' || audioPath == null
+        ? Container()
+        : Column(
+            children: [
+              const Text('Selected Audio File 👇'),
+              const SizedBox(height: 3),
+              Text(
+                audioPath!,
                 style: const TextStyle(
                   color: Colors.teal,
                   fontWeight: FontWeight.w500,
