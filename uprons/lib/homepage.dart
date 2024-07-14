@@ -4,6 +4,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_document_picker/flutter_document_picker.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:uprons/author.dart';
+import 'package:uprons/user_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -20,6 +22,8 @@ class _HomePageState extends State<HomePage> {
   late TextEditingController pages;
   late TextEditingController pubYear;
   late TextEditingController tags;
+
+  Author localAuthor = UserPreferences.getUser()!;
 
   List<String> languages = ['English', 'Amharic', 'Tigrinya', 'Afaan Oromoo'];
   String language = 'English';
@@ -70,7 +74,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('UpAtrons'),
+        title: const Text('Upload a Book'),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -343,6 +347,7 @@ class _HomePageState extends State<HomePage> {
                 firestoreRef.collection(collectionName).doc(uniqueKey.id).set({
                   'BookId': uniqueKey.id,
                   'EPub': epubPathUrl,
+                  'AuthorId': localAuthor.authorId,
                   'Audio': audioPathUrl,
                   'Image': uploadPath,
                   'Title': title.text,
@@ -354,6 +359,8 @@ class _HomePageState extends State<HomePage> {
                   'RatingsReviews': [],
                   'Language': language,
                   'PubYear': pubYear.text,
+                  'approved': false,
+                  'NumOfViews': 0,
                   'Tags': tags.text.split(tagSplitChar),
                 }).then((value) => _showMessage('Record Inserted.'));
               } else {
