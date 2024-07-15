@@ -13,77 +13,101 @@ class BooksAnalysis extends StatefulWidget {
 class _BooksAnalysisState extends State<BooksAnalysis> {
   @override
   Widget build(BuildContext context) {
+    int i = 0;
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text('Books Analysis'),
+      ),
       body: Container(
-              child: Column(
-                children: [
-                  BarChart(
-                    BarChartData(
-                      alignment: BarChartAlignment.spaceAround,
-                      maxY: 200,
-                      barTouchData: BarTouchData(enabled: false),
+        padding: EdgeInsets.all(8),
+        child: Column(
+          children: [
+            SizedBox(height: 30),
+            Row(
+              children: [
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                      color: Colors.teal,
+                      borderRadius: BorderRadius.circular(4.0)),
+                ),
+                SizedBox(width: 5),
+                Text(
+                  'Number of Downloads',
+                  style: TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
+            SizedBox(height: 15),
+            Row(
+              children: [
+                Container(
+                  width: 30,
+                  height: 30,
+                  decoration: BoxDecoration(
+                      color: Colors.amber,
+                      borderRadius: BorderRadius.circular(4.0)),
+                ),
+                SizedBox(width: 5),
+                Text(
+                  'Number of Views',
+                  style: TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
+            SizedBox(height: 50),
+            SizedBox(
+              height: 300,
+              child: Center(
+                child: BarChart(
+                  BarChartData(
+                      maxY: 50,
+                      minY: 0,
                       titlesData: FlTitlesData(
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                            showTitles: true,
-                            interval: 50,
-                            getTitlesWidget: (value, meta) {
-                              return Text(
-                                value.toInt().toString(),
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              );
-                            },
-                            reservedSize: 40,
-                          ),
-                        ),
+                        show: true,
+                        topTitles: AxisTitles(axisNameWidget: Text('Books')),
+                        rightTitles:
+                            AxisTitles(axisNameWidget: Text('Quantity')),
                         bottomTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
                             getTitlesWidget: (value, meta) {
-                              int index = value.toInt();
-                              return Text(
-                                widget.books[index].title,
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              );
+                              if (i >= widget.books.length) i = 0;
+                              Text text = widget.books[i].title.length > 15
+                                  ? Text(widget.books[i].title.substring(0, 15))
+                                  : Text(widget.books[i].title);
+                              i++;
+                              return text;
                             },
-                            reservedSize: 40,
                           ),
                         ),
                       ),
-                      borderData: FlBorderData(
-                        show: true,
-                        border: Border.all(
-                          color: Colors.black,
-                          width: 1,
-                        ),
-                      ),
-                      barGroups: List.generate(widget.books.length, (index) {
+                      barGroups: widget.books.map((book) {
                         return BarChartGroupData(
-                          x: index,
+                          x: book.numOfViews,
                           barRods: [
                             BarChartRodData(
-                              toY: widget.books[index].purchases.toDouble(),
+                              toY: book.purchases.toDouble(),
+                              width: 25,
+                              borderRadius: BorderRadius.circular(4.0),
                               color: Colors.teal,
-                              width: 20,
-                              borderRadius: BorderRadius.circular(4),
                             ),
+                            BarChartRodData(
+                              toY: book.numOfViews.toDouble(),
+                              width: 25,
+                              borderRadius: BorderRadius.circular(2.0),
+                              color: Colors.amber,
+                            )
                           ],
                         );
-                      }),
-                    ),
-                  )
-                ],
+                      }).toList()),
+                ),
               ),
             ),
+          ],
+        ),
+      ),
     );
   }
 }

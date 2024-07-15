@@ -102,7 +102,7 @@ class Book {
 
   String getRating() {
     if (ratingsReviews.isEmpty) {
-      return "0.0";
+      return '0.0';
     }
     
     double sum = 0;

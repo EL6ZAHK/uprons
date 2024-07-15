@@ -16,7 +16,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late TextEditingController title;
-  late TextEditingController author;
   late TextEditingController description;
   late TextEditingController price;
   late TextEditingController pages;
@@ -50,7 +49,6 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     title = TextEditingController();
-    author = TextEditingController();
     description = TextEditingController();
     price = TextEditingController();
     pages = TextEditingController();
@@ -61,7 +59,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void dispose() {
     title.dispose();
-    author.dispose();
     description.dispose();
     price.dispose();
     pages.dispose();
@@ -97,8 +94,8 @@ class _HomePageState extends State<HomePage> {
                   const SizedBox(height: 20),
                   buildTitle(),
                   const SizedBox(height: 20),
-                  buildAuthor(),
-                  const SizedBox(height: 20),
+                  // buildAuthor(),
+                  // const SizedBox(height: 20),
                   buildDescription(),
                   const SizedBox(height: 20),
                   buildPrice(),
@@ -187,17 +184,17 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  buildAuthor() {
-    return TextFormField(
-        controller: author,
-        decoration: const InputDecoration(
-          labelText: 'Author',
-          border: OutlineInputBorder(),
-        ),
-        validator: (value) {
-          return value!.length < 4 ? 'author name should be > 4' : null;
-        });
-  }
+  // buildAuthor() {
+  //   return TextFormField(
+  //       controller: author,
+  //       decoration: const InputDecoration(
+  //         labelText: 'Author',
+  //         border: OutlineInputBorder(),
+  //       ),
+  //       validator: (value) {
+  //         return value!.length < 4 ? 'author name should be > 4' : null;
+  //       });
+  // }
 
   buildDescription() {
     return TextFormField(
@@ -348,10 +345,10 @@ class _HomePageState extends State<HomePage> {
                   'BookId': uniqueKey.id,
                   'EPub': epubPathUrl,
                   'AuthorId': localAuthor.authorId,
+                  'Author': localAuthor.firstName + ' ' + localAuthor.lastName,
                   'Audio': audioPathUrl,
                   'Image': uploadPath,
                   'Title': title.text,
-                  'Author': author.text,
                   'Description': description.text,
                   'Price': price.text,
                   'Pages': pages.text,
@@ -374,7 +371,6 @@ class _HomePageState extends State<HomePage> {
                 audioPath = '';
                 imageName = '';
                 title.text = '';
-                author.text = '';
                 description.text = '';
                 price.text = '';
                 pages.text = '';

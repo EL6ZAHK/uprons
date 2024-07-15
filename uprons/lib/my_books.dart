@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uprons/book_desc.dart';
+import 'package:uprons/books_analysis.dart';
 import 'package:uprons/homepage.dart';
 import 'package:uprons/login.dart';
 import 'package:uprons/user_preferences.dart';
@@ -19,7 +20,7 @@ class _MyBooksState extends State<MyBooks> {
   @override
   void initState() {
     super.initState();
-    books = []; // Initialize the books list
+    books = [];
   }
 
   @override
@@ -45,6 +46,17 @@ class _MyBooksState extends State<MyBooks> {
                 onPressed: () {
                   Navigator.of(context)
                       .push(MaterialPageRoute(builder: (_) => HomePage()));
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.analytics_outlined),
+                iconSize: 26,
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => BooksAnalysis(books: books),
+                    ),
+                  );
                 },
               ),
             ],
@@ -74,8 +86,8 @@ class _MyBooksState extends State<MyBooks> {
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                 return SliverToBoxAdapter(
                     child: Center(
-                      child: Text('No books available'),
-                    ));
+                  child: Text('No books available'),
+                ));
               } else {
                 books = snapshot.data!;
                 return SliverGrid.count(
