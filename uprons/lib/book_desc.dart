@@ -4,6 +4,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:uprons/book.dart';
 import 'package:uprons/review.dart';
+import 'package:uprons/user_preferences.dart';
+
+import 'author.dart';
 
 class BookDesc extends StatefulWidget {
   const BookDesc({Key? key, required this.book}) : super(key: key);
@@ -184,10 +187,16 @@ class _BookDescState extends State<BookDesc> {
                           ),
                           onPressed: () async {
                             try {
+                              Author? author = UserPreferences.getUser();
                               await FirebaseFirestore.instance
                                   .collection('Books')
                                   .doc(widget.book.bookid)
                                   .delete();
+                              await FirebaseFirestore.instance
+                                  .collection('Authors')
+                                  .doc(author?.authorId)
+                                  .update(
+                                      {'NumOfBooks': FieldValue.increment(-1)});
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(

@@ -341,6 +341,7 @@ class _HomePageState extends State<HomePage> {
               var audioPathUrl = await audiotask.snapshot.ref.getDownloadURL();
 
               if (uploadPath.isNotEmpty && epubPathUrl.isNotEmpty) {
+                FirebaseFirestore.instance.collection('Authors').doc(localAuthor.authorId).update({'NumOfBooks': FieldValue.increment(1)});
                 firestoreRef.collection(collectionName).doc(uniqueKey.id).set({
                   'BookId': uniqueKey.id,
                   'EPub': epubPathUrl,

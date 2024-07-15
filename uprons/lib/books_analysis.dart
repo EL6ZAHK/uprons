@@ -29,8 +29,9 @@ class _BooksAnalysisState extends State<BooksAnalysis> {
                   width: 30,
                   height: 30,
                   decoration: BoxDecoration(
-                      color: Colors.teal,
-                      borderRadius: BorderRadius.circular(4.0)),
+                    color: Colors.teal,
+                    borderRadius: BorderRadius.circular(4.0),
+                  ),
                 ),
                 SizedBox(width: 5),
                 Text(
