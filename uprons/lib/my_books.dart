@@ -4,6 +4,7 @@ import 'package:uprons/books_analysis.dart';
 import 'package:uprons/homepage.dart';
 import 'package:uprons/login.dart';
 import 'package:uprons/user_preferences.dart';
+import 'author.dart';
 import 'book.dart';
 import 'database.dart';
 
@@ -25,6 +26,8 @@ class _MyBooksState extends State<MyBooks> {
 
   @override
   Widget build(BuildContext context) {
+    Author? author = UserPreferences.getUser();
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -62,9 +65,9 @@ class _MyBooksState extends State<MyBooks> {
             ],
             expandedHeight: 100.0,
             pinned: true,
-            flexibleSpace: const FlexibleSpaceBar(
+            flexibleSpace: FlexibleSpaceBar(
               centerTitle: true,
-              title: Text('My Books'),
+              title: Text('${author?.firstName} - Books'),
             ),
           ),
           StreamBuilder<List<Book>>(

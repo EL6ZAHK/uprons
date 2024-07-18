@@ -63,7 +63,7 @@ class _BooksAnalysisState extends State<BooksAnalysis> {
               child: Center(
                 child: BarChart(
                   BarChartData(
-                      maxY: 50,
+                      maxY: 100,
                       minY: 0,
                       titlesData: FlTitlesData(
                         show: true,
