@@ -1,4 +1,5 @@
 
+import 'package:bcrypt/bcrypt.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uprons/author.dart';
 
@@ -12,7 +13,9 @@ class Auth {
       List<QueryDocumentSnapshot> docs = querySnapshot.docs;
 
       for (var doc in docs) {
-        if (doc['email'] == email && doc['password'] == password) {
+        final hashedPassword = doc['password'];
+
+        if (doc['email'] == email && BCrypt.checkpw(password, hashedPassword)) {
           Author author = new Author(authorId: doc['AuthorId'], address: doc['address'], contact: doc['contact'], email: email, firstName: doc['firstName'], lastName: doc['lastName'], numOfBooks: doc['numOfBooks'], password: password);
           return author;
         }
